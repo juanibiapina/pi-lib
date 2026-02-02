@@ -1,7 +1,7 @@
 {
 	"name": "@juanibiapina/pi-lib",
-	"version": "0.2.0",
-	"description": "A core library for building pi extensions",
+	"version": "0.3.0",
+	"description": "Pi extension for centralized settings management across extensions",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -19,10 +19,14 @@
 	],
 	"keywords": [
 		"pi",
+		"pi-package",
 		"extension",
 		"config",
 		"utilities"
 	],
+	"pi": {
+		"extensions": ["./dist/index.js"]
+	},
 	"author": "Juan Ibiapina",
 	"license": "MIT",
 	"repository": {
@@ -33,7 +37,8 @@
 		"node": ">=20.0.0"
 	},
 	"peerDependencies": {
-		"@mariozechner/pi-coding-agent": ">=0.30.0"
+		"@mariozechner/pi-coding-agent": "*",
+		"@mariozechner/pi-tui": "*"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.5",

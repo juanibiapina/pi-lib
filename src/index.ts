@@ -1,100 +1,43 @@
-import { getAgentDir } from "@mariozechner/pi-coding-agent";
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
-
 /**
- * Deep merge two objects. Values from `overrides` take precedence.
- * Arrays are replaced, not merged.
- */
-function deepMerge<T extends Record<string, unknown>>(base: T, overrides: Partial<T>): T {
-	const result = { ...base } as T;
-
-	for (const key of Object.keys(overrides) as (keyof T)[]) {
-		const overrideValue = overrides[key];
-		const baseValue = base[key];
-
-		if (overrideValue === undefined) {
-			continue;
-		}
-
-		if (
-			typeof overrideValue === "object" &&
-			overrideValue !== null &&
-			!Array.isArray(overrideValue) &&
-			typeof baseValue === "object" &&
-			baseValue !== null &&
-			!Array.isArray(baseValue)
-		) {
-			(result as Record<string, unknown>)[key as string] = deepMerge(
-				baseValue as Record<string, unknown>,
-				overrideValue as Record<string, unknown>,
-			);
-		} else {
-			(result as Record<string, unknown>)[key as string] = overrideValue;
-		}
-	}
-
-	return result;
-}
-
-const CONFIG_DIR_NAME = ".pi";
-
-const SETTINGS_FILE_NAME = "settings-extensions.json";
-
-type SettingsFile = Record<string, Record<string, unknown>>;
-
-/**
- * Load the settings file. Returns empty object if file doesn't exist or is invalid.
- */
-function loadSettingsFile(path: string): SettingsFile {
-	if (!existsSync(path)) {
-		return {};
-	}
-	try {
-		const content = readFileSync(path, "utf-8");
-		return JSON.parse(content) as SettingsFile;
-	} catch {
-		return {};
-	}
-}
-
-/**
- * Load extension config from global and project locations, with project taking precedence.
+ * Pi extension settings library.
  *
- * Config file locations:
- * - Global: ~/.pi/agent/settings-extensions.json
- * - Project: <cwd>/.pi/settings-extensions.json
+ * Provides helpers for reading/writing extension settings and a UI
+ * for configuring all registered extension settings.
  *
- * Each file contains a JSON object with extension names as keys:
- * ```json
- * {
- *   "my-extension": { "timeout": 30 },
- *   "another-extension": { "debug": true }
- * }
- * ```
+ * ## For Extension Authors
  *
- * @param name - Extension name (used as key in the settings file)
- * @returns Merged config with project values taking precedence
+ * ### Register Settings (for the UI)
  *
- * @example
+ * Emit the `pi-lib:register` event during extension load:
+ *
  * ```typescript
- * interface MyConfig {
- *   timeout?: number;
- *   debug?: boolean;
- * }
+ * import type { SettingDefinition } from "@juanibiapina/pi-lib";
  *
- * const config = loadConfig<MyConfig>("my-extension");
+ * export default function(pi: ExtensionAPI) {
+ *   pi.events.emit("pi-lib:register", {
+ *     name: "my-extension",
+ *     settings: [
+ *       { id: "timeout", label: "Timeout", defaultValue: "30", values: ["10", "30", "60"] },
+ *       { id: "projectName", label: "Project Name", defaultValue: "" },
+ *     ] satisfies SettingDefinition[]
+ *   });
+ * }
+ * ```
+ *
+ * ### Read/Write Settings
+ *
+ * ```typescript
+ * import { getSetting, setSetting } from "@juanibiapina/pi-lib";
+ *
+ * const timeout = getSetting("my-extension", "timeout", "30");
+ * setSetting("my-extension", "timeout", "60");
  * ```
  */
-export function loadConfig<T extends Record<string, unknown>>(name: string): T {
-	const globalPath = join(getAgentDir(), SETTINGS_FILE_NAME);
-	const projectPath = join(process.cwd(), CONFIG_DIR_NAME, SETTINGS_FILE_NAME);
 
-	const globalSettings = loadSettingsFile(globalPath);
-	const projectSettings = loadSettingsFile(projectPath);
+// Extension entry point
+export { default } from "./extension.js";
 
-	const globalConfig = (globalSettings[name] ?? {}) as Partial<T>;
-	const projectConfig = (projectSettings[name] ?? {}) as Partial<T>;
-
-	return deepMerge(globalConfig as T, projectConfig) as T;
-}
+// Stateless helpers for reading/writing settings
+export { getSetting, setSetting } from "./settings/storage.js";
+// Type for documentation/type-safety when emitting events
+export type { SettingDefinition } from "./settings/types.js";

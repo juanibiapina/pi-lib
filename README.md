@@ -1,58 +1,153 @@
 # @juanibiapina/pi-lib
 
-A core library for building [pi](https://github.com/badlogic/pi-mono) extensions.
+A [pi](https://github.com/badlogic/pi-mono) extension that provides centralized settings management for all extensions.
+
+## Features
+
+- **`/extension-settings` command** - Interactive UI to configure all registered extension settings
+- **Helpers for reading/writing** - `getSetting()` and `setSetting()` functions
+- **Persistent storage** - Settings stored in `~/.pi/agent/settings-extensions.json`
 
 ## Installation
 
 ```bash
-npm install @juanibiapina/pi-lib
+pi install npm:@juanibiapina/pi-lib
 ```
 
-## Features
+## Usage
 
-### Configuration Loading
+### For Extension Authors
 
-Extensions often need user-configurable settings. This library provides a standardized way to load configuration from global and project locations, with automatic merging.
+To use pi-lib in your extension:
+
+1. **Add pi-lib as a dependency** in your extension's `package.json`:
+   ```json
+   {
+     "dependencies": {
+       "@juanibiapina/pi-lib": "^0.3.0"
+     }
+   }
+   ```
+
+2. **Emit the registration event** and use the helper functions as shown below.
+
+#### 1. Register Settings (for the UI)
+
+Emit the `pi-lib:register` event during extension load to make your settings appear in `/extension-settings`:
 
 ```typescript
-import { loadConfig } from "@juanibiapina/pi-lib";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { SettingDefinition } from "@juanibiapina/pi-lib";
 
-interface MyExtensionConfig {
-  timeout?: number;
-  debug?: boolean;
-  maxRetries?: number;
-}
-
-export default function (pi: ExtensionAPI) {
-  const config = loadConfig<MyExtensionConfig>("my-extension");
-  
-  // Users can now configure your extension via:
-  // - ~/.pi/agent/settings-extensions.json (global defaults)
-  // - <project>/.pi/settings-extensions.json (project overrides)
+export default function myExtension(pi: ExtensionAPI) {
+  pi.events.emit("pi-lib:register", {
+    name: "my-extension",
+    settings: [
+      {
+        id: "timeout",
+        label: "Request Timeout",
+        description: "Timeout in seconds for API requests",
+        defaultValue: "30",
+        values: ["10", "30", "60", "120"],  // Cycles through these values
+      },
+      {
+        id: "debug",
+        label: "Debug Mode",
+        description: "Enable verbose logging",
+        defaultValue: "off",
+        values: ["on", "off"],
+      },
+      {
+        id: "projectName",
+        label: "Project Name",
+        description: "Name used in commit messages",
+        defaultValue: "",
+        // No 'values' = free-form string input
+      },
+    ] satisfies SettingDefinition[]
+  });
 }
 ```
 
-Project config takes precedence. Nested objects are deep-merged.
+#### 2. Read/Write Settings
 
-## Config Locations
+Use the helper functions to read and write settings:
 
-| Scope | Path |
-|-------|------|
-| Global | `~/.pi/agent/settings-extensions.json` |
-| Project | `<cwd>/.pi/settings-extensions.json` |
+```typescript
+import { getSetting, setSetting } from "@juanibiapina/pi-lib";
 
-## Config File Format
+// Read a setting (with default fallback - must match defaultValue from registration)
+const timeout = getSetting("my-extension", "timeout", "30");
 
-All extension settings are stored in a single file with one key per extension:
+// Write a setting
+setSetting("my-extension", "debug", "on");
+```
+
+### For Users
+
+Use the `/extension-settings` command to configure all registered extension settings through an interactive UI:
+
+- Settings are grouped by extension with headers
+- Use arrow keys to navigate
+- Press Enter or Space to cycle through values (or edit string inputs)
+- Type to search/filter settings
+- Press Escape to close
+
+## API Reference
+
+### `getSetting(extensionName, settingId, defaultValue?)`
+
+Get a setting value. Returns the stored value, or the provided default, or `undefined`.
+
+```typescript
+const value = getSetting("my-extension", "timeout", "30");
+```
+
+### `setSetting(extensionName, settingId, value)`
+
+Set a setting value. Writes to `~/.pi/agent/settings-extensions.json`.
+
+```typescript
+setSetting("my-extension", "debug", "on");
+```
+
+### `SettingDefinition` (type)
+
+Type for settings registration (use with `satisfies` for type checking):
+
+```typescript
+interface SettingDefinition {
+  id: string;            // Unique ID within the extension
+  label: string;         // Display label in UI
+  description?: string;  // Optional help text shown when selected
+  defaultValue: string;  // Default value if not set
+  values?: string[];     // Values to cycle through (omit for free-form string input)
+}
+```
+
+### Event: `pi-lib:register`
+
+Emit this event to register settings for the UI:
+
+```typescript
+pi.events.emit("pi-lib:register", {
+  name: string;                    // Extension name
+  settings: SettingDefinition[];   // Array of setting definitions
+});
+```
+
+## Storage
+
+Settings are stored in `~/.pi/agent/settings-extensions.json`:
 
 ```json
 {
   "my-extension": {
-    "timeout": 30,
-    "debug": true
+    "timeout": "60",
+    "debug": "on"
   },
   "another-extension": {
-    "maxRetries": 3
+    "theme": "dark"
   }
 }
 ```

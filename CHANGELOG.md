@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+
+- **Pi extension** - Package is now a pi extension with `/extension-settings` command
+- **`getSetting(name, id, defaultValue?)`** - Read a setting value with optional default
+- **`setSetting(name, id, value)`** - Write a setting value to global settings file
+- **Interactive UI** - `/extension-settings` shows all registered settings grouped by extension with search
+- **String input support** - Settings without `values` array allow free-form text input
+- **Event-based registration** - Extensions emit `pi-lib:register` event to register settings for the UI
+
+### Removed
+
+- **`loadConfig()`** - Removed in favor of the new API
+
 ## 0.2.0
 
 ### Changed
