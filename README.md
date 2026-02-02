@@ -20,7 +20,7 @@ import { loadConfig } from "@juanibiapina/pi-lib";
 interface MyExtensionConfig {
   timeout?: number;
   debug?: boolean;
-  apiKey?: string;
+  maxRetries?: number;
 }
 
 export default function (pi: ExtensionAPI) {
@@ -52,7 +52,7 @@ All extension settings are stored in a single file with one key per extension:
     "debug": true
   },
   "another-extension": {
-    "apiKey": "xyz"
+    "maxRetries": 3
   }
 }
 ```
