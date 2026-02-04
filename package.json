@@ -25,7 +25,9 @@
 		"utilities"
 	],
 	"pi": {
-		"extensions": ["./dist/index.js"]
+		"extensions": [
+			"./dist/index.js"
+		]
 	},
 	"author": "Juan Ibiapina",
 	"license": "MIT",
@@ -47,6 +49,7 @@
 		"@biomejs/biome": "2.3.5",
 		"@mariozechner/pi-coding-agent": "^0.51.1",
 		"@types/node": "^22.10.5",
+		"arktype": "^2.1.29",
 		"tsx": "^4.20.3",
 		"typescript": "^5.9.2"
 	}
