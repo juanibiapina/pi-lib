@@ -36,9 +36,8 @@
 
 // Extension entry point
 export { default } from "./extension.js";
-
+export type { TypedSettingsStore } from "./settings/storage.js";
 // Settings helpers and typed store factory
 export { createSettingsStoreFactory, getSetting, getSettingsForExtension, setSetting } from "./settings/storage.js";
-export type { TypedSettingsStore } from "./settings/storage.js";
 // Type for documentation/type-safety when emitting events
 export type { SettingDefinition } from "./settings/types.js";
