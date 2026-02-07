@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.5.0
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.5.0] - 2026-02-07
 
 ### Added
 
@@ -8,13 +15,13 @@
 - **`OrderedMultiSelect` component** - Submenu UI with toggle (Space), reorder (Shift+↑/↓), confirm (Enter), and cancel (Esc)
 - **`OrderedListOption` type** - Exported for extensions that define ordered list settings
 
-## 0.4.0
+## [0.4.0] - 2026-02-05
 
 ### Fixed
 
 - Extension headers are no longer editable in the settings UI
 
-## 0.3.0
+## [0.3.0] - 2026-02-03
 
 ### Added
 
@@ -29,7 +36,7 @@
 
 - **`loadConfig()`** - Removed in favor of the new API
 
-## 0.2.0
+## [0.2.0] - 2026-02-02
 
 ### Changed
 
@@ -38,7 +45,7 @@
   - Project: `<cwd>/.pi/settings-extensions.json`
 - Migration: Move settings from `<name>.json` to `settings-extensions.json` under the key `"<name>"`
 
-## 0.1.0
+## [0.1.0] - 2026-02-02
 
 Initial release.
 
