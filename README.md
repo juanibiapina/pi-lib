@@ -6,6 +6,7 @@ A [pi](https://github.com/badlogic/pi-mono) extension that provides centralized 
 
 - **`/extension-settings` command** - Interactive UI to configure all registered extension settings
 - **Helpers for reading/writing** - `getSetting()` and `setSetting()` functions
+- **Ordered multi-select** - Settings where users pick and reorder items from a list
 - **Persistent storage** - Settings stored in `~/.pi/agent/settings-extensions.json`
 
 ## For Users
@@ -33,7 +34,7 @@ If you're developing an extension and want to use the settings system, add this 
 ```json
 {
   "dependencies": {
-    "@juanibiapina/pi-extension-settings": "^0.4.0"
+    "@juanibiapina/pi-extension-settings": "^0.5.0"
   }
 }
 ```
@@ -72,6 +73,18 @@ export default function myExtension(pi: ExtensionAPI) {
         description: "Name used in commit messages",
         defaultValue: "",
         // No 'values' = free-form string input
+      },
+      {
+        id: "enabledModels",
+        label: "Enabled Models",
+        description: "Pick and reorder your preferred models",
+        defaultValue: "",
+        // Ordered multi-select: opens a submenu to toggle and reorder items
+        options: [
+          { id: "model-a", label: "Model A" },
+          { id: "model-b", label: "Model B" },
+          { id: "model-c", label: "Model C" },
+        ],
       },
     ] satisfies SettingDefinition[]
   });
@@ -116,13 +129,21 @@ Type for settings registration (use with `satisfies` for type checking):
 
 ```typescript
 interface SettingDefinition {
-  id: string;            // Unique ID within the extension
-  label: string;         // Display label in UI
-  description?: string;  // Optional help text shown when selected
-  defaultValue: string;  // Default value if not set
-  values?: string[];     // Values to cycle through (omit for free-form string input)
+  id: string;                   // Unique ID within the extension
+  label: string;                // Display label in UI
+  description?: string;         // Optional help text shown when selected
+  defaultValue: string;         // Default value if not set
+  values?: string[];            // Values to cycle through (omit for free-form string input)
+  options?: OrderedListOption[]; // Ordered multi-select options (mutually exclusive with values)
+}
+
+interface OrderedListOption {
+  id: string;    // Value stored in the comma-separated setting
+  label: string; // Display label in the menu
 }
 ```
+
+When `options` is set, Enter opens a submenu where items can be toggled (Space), reordered (Shift+↑/↓), confirmed (Enter), or cancelled (Esc). The value is stored as comma-separated IDs.
 
 ### Event: `pi-extension-settings:register`
 
