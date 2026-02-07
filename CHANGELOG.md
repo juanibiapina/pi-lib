@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.5.0
 
 ### Added
 
 - **Ordered multi-select settings** - New `options` field on `SettingDefinition` for settings where users pick and reorder items from a list
 - **`OrderedMultiSelect` component** - Submenu UI with toggle (Space), reorder (Shift+↑/↓), confirm (Enter), and cancel (Esc)
 - **`OrderedListOption` type** - Exported for extensions that define ordered list settings
+
+## 0.4.0
 
 ### Fixed
 
