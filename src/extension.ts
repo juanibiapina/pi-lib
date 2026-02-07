@@ -5,6 +5,7 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { getSettingsListTheme } from "@mariozechner/pi-coding-agent";
 import { Container, Text } from "@mariozechner/pi-tui";
+import { OrderedMultiSelect } from "./components/ordered-multi-select.js";
 import { type SettingItem, SettingsList } from "./components/settings-list.js";
 import { getSetting, setSetting } from "./settings/storage.js";
 import type { SettingDefinition } from "./settings/types.js";
@@ -60,13 +61,27 @@ export default function piLibExtension(pi: ExtensionAPI) {
 					// Add each setting
 					for (const setting of settings) {
 						const currentValue = getSetting(extName, setting.id, setting.defaultValue) ?? setting.defaultValue;
-						items.push({
-							id: `${extName}::${setting.id}`,
-							label: `  ${setting.label}`,
-							description: setting.description,
-							currentValue,
-							values: setting.values,
-						});
+
+						if (setting.options && setting.options.length > 0) {
+							// Ordered multi-select: opens a submenu
+							items.push({
+								id: `${extName}::${setting.id}`,
+								label: `  ${setting.label}`,
+								description: setting.description,
+								currentValue,
+								submenu: (val, submenuDone) => {
+									return new OrderedMultiSelect(setting.options!, val, getSettingsListTheme(), submenuDone);
+								},
+							});
+						} else {
+							items.push({
+								id: `${extName}::${setting.id}`,
+								label: `  ${setting.label}`,
+								description: setting.description,
+								currentValue,
+								values: setting.values,
+							});
+						}
 					}
 				}
 

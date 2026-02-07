@@ -39,5 +39,5 @@ export { default } from "./extension.js";
 
 // Stateless helpers for reading/writing settings
 export { getSetting, setSetting } from "./settings/storage.js";
-// Type for documentation/type-safety when emitting events
-export type { SettingDefinition } from "./settings/types.js";
+// Types for documentation/type-safety when emitting events
+export type { OrderedListOption, SettingDefinition } from "./settings/types.js";
